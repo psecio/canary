@@ -11,9 +11,11 @@ optionally, a handler using a `then` method. For example, say we generated the u
 it's used. You can define this in a `Canary` expression like so:
 
 ```php
+<?php
 $_POST = ['username' => 'canary1234@foo.com'];
 
 \Psecio\Canary\Instance::build()->if('username', 'canary1234@foo.com')->execute();
+?>
 ```
 
 In this example we're looking at the current input and checking to see if there's a `username` value of `canary1234@foo.com`. In the case
@@ -26,3 +28,24 @@ the error like (via the `Psecio\Canary\Notify\ErrorLog` handler). The JSON encod
 
 > **NOTE:** Canary automatically pulls in the `$_GET` and `$_POST` superglobal values for evaluation so you don't need to manually pass
 then in.
+
+
+### Creating a Custom Handler
+
+If you don't want your results to go to the error log, you can create your own handler via the `then` method. Currently the only custom
+handler supported is a callable method. So, say we wanted to output a message to the user of our special username and kill the script. We
+might use something like this:
+
+```php
+<?php
+$_POST = ['username' => 'canary1234@foo.com'];
+
+\Psecio\Canary\Instance::build()->if('username', 'canary1234@foo.com')
+    ->then(function($criteria) {
+        die("You shouldn't have done that!");
+    })
+    ->execute();
+?>
+```
+
+In this handler, when it detects that the username value matches our criteria, the callback is executed and the `die` call kills the script.
