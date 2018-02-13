@@ -2,18 +2,39 @@
 
 namespace Psecio\Canary;
 
-use \Psecio\Canary\Criteria\Equals;
+use Psecio\Canary\Criteria\Equals;
 use Psecio\Canary\Canary;
+use Psecio\Canary\CriteriaSet;
 
 class Instance
 {
+    /**
+     * Current Data instance
+     * @var Psecio\Canary\Data
+     */
     private $data;
+
+    /**
+     * Current configuration options
+     * @var array
+     */
     private $config = [];
+
+    /**
+     * Current CriteraSet instance
+     * @var Psecio\Canary\CriteriaSet
+     */
     private $criteria;
 
+    /**
+     * Initialize the object with the provided configuration
+     *
+     * @param array $config Configuration options [optional]
+     */
     public function __construct(array $config = [])
     {
         $this->setConfig($config);
+        $this->criteria = new CriteriaSet();
 
         if (isset($config['data'])) {
             $this->data = new Data($config['data']);
@@ -22,12 +43,23 @@ class Instance
         }
     }
 
-    public static function build(array $config = [])
+    /**
+     * Static method to create a new instance
+     *
+     * @param array $config Configuration options [optional]
+     * @return \Psecio\Canary\Instance instance
+     */
+    public static function build(array $config = []) : \Psecio\Canary\Instance
     {
         $instance = new \Psecio\Canary\Instance($config);
         return $instance;
     }
 
+    /**
+     * Loads the default data, pulling in $_GET, $_POST and some $_SERVER values
+     *
+     * @return array Set of default data
+     */
     protected function getDefaultData()
     {
         return [
@@ -39,54 +71,58 @@ class Instance
         ];
     }
 
-    protected function loadGlobals()
-    {
-        $this->addData('get', $_GET);
-        $this->addData('post', $_POST);
-    }
-    protected function loadRequest()
-    {
-        $this->addData('request', [
-            'uri' => $_SERVER['REQUEST_URI']
-        ]);
-    }
-
+    /**
+     * Set the current configuration options
+     *
+     * @param array $config Configuration options
+     */
     protected function setConfig(array $config)
     {
         $this->config = $config;
     }
+
+    /**
+     * Get the current configuration. If a key is provided and exists, return the value
+     *
+     * @param string $key Key to locate [optional]
+     * @return mixed Returns either the value if found or all configuration options
+     */
     protected function getConfig($key = null)
     {
         return ($key !== null && isset($this->config[$key])) ? $this->config[$key] : $this->config;
     }
 
-    protected function addData($key, $value)
-    {
-        $this->data[$key] = $value;
-    }
-    protected function getData($key = null)
-    {
-        return ($key !== null && isset($this->data[$key])) ? $this->data[$key] : $this->data;
-    }
-
+    /**
+     * Set up a new criteria based on the input. If a CriteriaSet object is
+     * provided, set the current critera value to that.
+     *
+     * If the method is called with two paramaters, create a simple Equals criteria
+     *
+     * @param mixed $params Options to use for criteria
+     * @return \Psecio\Canary\Instance instance
+     */
     public function if(...$params) : \Psecio\Canary\Instance
     {
-        if (count($params) == 1 && $params[0] instanceof CriteraSet) {
+        if (count($params) == 1 && $params[0] instanceof CriteriaSet) {
             $this->criteria = $params[0];
 
         } elseif (count($params) > 1) {
-            if ($this->criteria == null) {
-                $this->criteria = new CriteriaSet();
-            }
-
             // Add it as an "equals" criteria
             $equals = new Equals($params[0], $params[1]);
             $this->criteria->add($equals);
         }
-        
+
         return $this;
     }
 
+    /**
+     * Set up a notification handler. This notification will be assigned
+     * to the last criteria added.
+     *
+     * @param mixed $callback Input, either a callable or an instance of a Notify object
+     *
+     * @return \Psecio\Canary\Instance instance
+     */
     public function then($callback) : \Psecio\Canary\Instance
     {
         if (is_callable($callback)) {
@@ -102,11 +138,17 @@ class Instance
         return $this;
     }
 
+    /**
+     * Execute the criteria on the current set of data
+     *
+     * @return bool Pass/fail status of evaluation
+     */
     public function execute() : bool
     {
         $match = false;
-        foreach ($this->criteria as $criteria) {
+        foreach ($this->criteria as $index => $criteria) {
             if ($criteria->evaluate($this->data) === true) {
+                $matches[$index] = true;
                 $notify = $criteria->getNotify();
 
                 echo "Notify: ".get_class($notify)."\n";
