@@ -49,3 +49,17 @@ $_POST = ['username' => 'canary1234@foo.com'];
 ```
 
 In this handler, when it detects that the username value matches our criteria, the callback is executed and the `die` call kills the script.
+
+### Passing in custom data
+
+You can also provide your own data set if you don't want to auto-load the current `$_GET` and `$_POST` values. To pass the data in you can use the
+`data` value in the configuration and passing it in:
+
+```
+<?php
+$config = ['data' => [
+    'username' => 'foobar@baz.com'
+]];
+\Psecio\Canary\Instance::build($config)->if('username', 'canary1234@foo.com')->execute();
+?>
+```
