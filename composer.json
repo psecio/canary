@@ -1,0 +1,25 @@
+{
+    "name":"psecio/canary",
+    "type":"library",
+    "description":"An input detection and response library",
+    "keywords":["input", "detect", "response"],
+    "homepage":"https://github.com/psecio/canary.git",
+    "license":"MiT",
+    "authors":[
+        {
+            "name":"Chris Cornutt",
+            "email":"ccornutt@phpdeveloper.org"
+        }
+    ],
+    "require":{
+        "vlucas/phpdotenv": "^2.4",
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Psecio\\Canary\\": "src/"
+        }
+    }
+}
