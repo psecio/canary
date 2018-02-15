@@ -78,11 +78,21 @@ class Instance
     }
 
     /**
+     * Return the current Data instance
+     *
+     * @return \Psecio\Canary\Data instance
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
      * Set the current configuration options
      *
      * @param array $config Configuration options
      */
-    protected function setConfig(array $config)
+    public function setConfig(array $config)
     {
         $this->config = $config;
     }
@@ -93,7 +103,7 @@ class Instance
      * @param string $key Key to locate [optional]
      * @return mixed Returns either the value if found or all configuration options
      */
-    protected function getConfig($key = null)
+    public function getConfig($key = null)
     {
         return ($key !== null && array_key_exists($key, $this->config)) ? $this->config[$key] : $this->config;
     }
@@ -160,7 +170,7 @@ class Instance
 
         } elseif ($notify instanceof \Maknz\Slack\Client) {
             $notify = new \Psecio\Canary\Notify\Slack($notify);
-            
+
         } else {
             throw new \InvalidArgumentException('Invalid notification method: '.get_class($notify));
         }
@@ -178,7 +188,7 @@ class Instance
         $defaultNotify = $this->getConfig('notify');
 
         foreach ($this->criteria as $index => $criteria) {
-            if ($criteria->evaluate($this->data) === true) {
+            if ($criteria->evaluate($this->getData()) === true) {
                 $matches[$index] = true;
 
                 // If we've been given a default notify handler, always use that
