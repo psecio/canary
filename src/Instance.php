@@ -5,6 +5,8 @@ namespace Psecio\Canary;
 use Psecio\Canary\Criteria\Equals;
 use Psecio\Canary\Canary;
 use Psecio\Canary\CriteriaSet;
+use Psecio\Canary\Criteria;
+use Psecio\Canary\Notify\ErrorLog;
 
 class Instance
 {
@@ -18,7 +20,9 @@ class Instance
      * Current configuration options
      * @var array
      */
-    private $config = [];
+    protected $config = [
+        'notify' => null
+    ];
 
     /**
      * Current CriteraSet instance
@@ -33,7 +37,9 @@ class Instance
      */
     public function __construct(array $config = [])
     {
-        $this->setConfig($config);
+        if (!empty($config)) {
+            $this->setConfig($config);
+        }
         $this->criteria = new CriteriaSet();
 
         if (isset($config['data'])) {
@@ -89,7 +95,7 @@ class Instance
      */
     protected function getConfig($key = null)
     {
-        return ($key !== null && isset($this->config[$key])) ? $this->config[$key] : $this->config;
+        return ($key !== null && array_key_exists($key, $this->config)) ? $this->config[$key] : $this->config;
     }
 
     /**
@@ -105,6 +111,8 @@ class Instance
     {
         if (count($params) == 1 && $params[0] instanceof CriteriaSet) {
             $this->criteria = $params[0];
+        } elseif (count($params) == 1 && $params[0] instanceof Criteria) {
+            $this->criteria->add($params[0]);
 
         } elseif (count($params) > 1) {
             // Add it as an "equals" criteria
@@ -125,17 +133,35 @@ class Instance
      */
     public function then($callback) : \Psecio\Canary\Instance
     {
-        if (is_callable($callback)) {
-            $callback = new Notify\Callback(['callback' => $callback]);
-        } elseif (!($callback instanceof Notify)) {
-            throw new \InvalidArgumentException('Invalid notification method');
-        }
-
         // If they call this, get the last criteria on the stack and update the notify
         $last = count($this->criteria) - 1;
         $this->criteria[$last]->setNotify($callback);
 
         return $this;
+    }
+
+    /**
+     * Resolve the notification if it's not already a Notify instance
+     *
+     * @param mixed $notify Notification method
+     * @return \Psecio\Canary\Notify instance
+     */
+    public function resolveNotify($notify)
+    {
+        if ($notify instanceof Notify) {
+            return $notify;
+        }
+
+        if (is_callable($notify)) {
+            $notify = new Notify\Callback(['callback' => $notify]);
+
+        } elseif ($notify instanceof \Monolog\Logger) {
+            $notify = new \Psecio\Canary\Notify\Monolog($notify);
+
+        } else {
+            throw new \InvalidArgumentException('Invalid notification method: '.get_class($notify));
+        }
+        return $notify;
     }
 
     /**
@@ -146,12 +172,19 @@ class Instance
     public function execute() : bool
     {
         $match = false;
+        $defaultNotify = $this->getConfig('notify');
+
         foreach ($this->criteria as $index => $criteria) {
             if ($criteria->evaluate($this->data) === true) {
                 $matches[$index] = true;
-                $notify = $criteria->getNotify();
 
-                echo "Notify: ".get_class($notify)."\n";
+                // If we've been given a default notify handler, always use that
+                $notify = ($defaultNotify !== null) ? $defaultNotify : $criteria->getNotify();
+
+                // If it's not a Notify already, resolve it
+                if (!($notify instanceof Notify)) {
+                    $notify = $this->resolveNotify($notify);
+                }
 
                 $notify->execute($criteria);
                 $match = true;
