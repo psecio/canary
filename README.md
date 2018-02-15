@@ -1,9 +1,12 @@
 Canary: Input Detection and Response
 ==================
 
-In security there is the concept of a "canary". Those that used to work deep in mines would take a canary (the bird) with them to
-detect gas or other reasons they needed to leave. Similarly, the `Canary` library allows you to define key/value combinations that
-can be used to detect when certain data is used.
+The origin of the term "canary" (as a method of detection) was originally used by those that worked deep in mines and would take a canary
+(the bird) with them to detect gas or other reasons they needed to leave. If the bird started behaving oddly they knew something was amiss.
+This same concept is applied in the security world and is similarly called a "canary".
+
+Similarly, the `Canary` library allows you to define key/value combinations that can be used to detect when certain data is used and notify
+you using a variety of methods including the default PHP error log, log handling via `Monolog` and messages to `Slack` channels.
 
 For example, you may generate a special username that you want to use as a trigger. This username isn't actually a user in your system
 but you do want to be notified if a login attempt is made using it. `Canary` makes this simple by defining checks with an `if` method and,
