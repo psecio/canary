@@ -18,7 +18,7 @@ abstract class Criteria implements \JsonSerializable
         $this->setNotify(new ErrorLog());
     }
 
-    public function setNotify(Notify $notify)
+    public function setNotify($notify)
     {
         $this->notify = $notify;
     }
