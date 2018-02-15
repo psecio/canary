@@ -33,12 +33,12 @@ then in.
 
 Currently `Canary` supports the following notification methods:
 
-| Type      | Class                            |
-| --------- | -------------------------------- |
-| Error log | `\Psecio\Canary\Notify\ErrorLog` |
-| Monolog   | `\Psecio\Canary\Notify\Monolog`  |
-| Callback  | `\Psecio\Canary\Notify\Callback` |
-| Slack     | `\Psecio\Canary\Notify\Slack`    |
+| Type      | Class                            | Expected Input              |
+| --------- | -------------------------------- | --------------------------- |
+| Error log | `\Psecio\Canary\Notify\ErrorLog` | None, uses default location |
+| Monolog   | `\Psecio\Canary\Notify\Monolog`  | `\Monolog\Logger`           |
+| Callback  | `\Psecio\Canary\Notify\Callback` | Callable function           |
+| Slack     | `\Psecio\Canary\Notify\Slack`    | `\Maknz\Slack\Client`       |
 
 ### Creating a Custom Handler (Callback)
 
