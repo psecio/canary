@@ -63,3 +63,46 @@ $config = ['data' => [
 \Psecio\Canary\Instance::build($config)->if('username', 'canary1234@foo.com')->execute();
 ?>
 ```
+
+### Using Monolog
+
+The `Canary` tool also allows you to use the [Monolog](https://github.com/Seldaek/monolog) logging library to define a bit more customization to the structure of the data and how it's output. Like before, we create the `Canary` instance but for the input of the `then` method we provide a `Monolog\Logger` instance:
+
+```php
+<?php
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+require_once 'vendor/autoload.php';
+
+$_GET = ['username' => 'test'];
+
+// create a log channel
+$log = new Logger('name');
+$log->pushHandler(new StreamHandler('/tmp/mylog.log', Logger::WARNING));
+
+\Psecio\Canary\Instance::build()
+    ->if('username', 'canary1234@foo.com')
+    ->then($log)
+    ->execute();
+?>
+```
+
+Or you can set it as the default logger for **all** `if` checks via the `build()` configuration options:
+
+```php
+<?php
+
+// create a log channel
+$log = new Logger('name');
+$log->pushHandler(new StreamHandler('/tmp/mylog.log', Logger::WARNING));
+
+$config = [
+    'notify' => $log
+];
+\Psecio\Canary\Instance::build($config)->if('username', 'canary1234@foo.com')->execute();
+
+?>
+```
+
+> **NOTE:** If you provide a default handler via the `notify` configuration it will override all other custom notification methods.
