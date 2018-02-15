@@ -158,6 +158,9 @@ class Instance
         } elseif ($notify instanceof \Monolog\Logger) {
             $notify = new \Psecio\Canary\Notify\Monolog($notify);
 
+        } elseif ($notify instanceof \Maknz\Slack\Client) {
+            $notify = new \Psecio\Canary\Notify\Slack($notify);
+            
         } else {
             throw new \InvalidArgumentException('Invalid notification method: '.get_class($notify));
         }

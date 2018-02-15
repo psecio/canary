@@ -29,8 +29,18 @@ the error like (via the `Psecio\Canary\Notify\ErrorLog` handler). The JSON encod
 > **NOTE:** Canary automatically pulls in the `$_GET` and `$_POST` superglobal values for evaluation so you don't need to manually pass
 then in.
 
+### Supported Notifier Methods
 
-### Creating a Custom Handler
+Currently `Canary` supports the following notification methods:
+
+| Type      | Class                            |
+| --------- | -------------------------------- |
+| Error log | `\Psecio\Canary\Notify\ErrorLog` |
+| Monolog   | `\Psecio\Canary\Notify\Monolog`  |
+| Callback  | `\Psecio\Canary\Notify\Callback` |
+| Slack     | `\Psecio\Canary\Notify\Slack`    |
+
+### Creating a Custom Handler (Callback)
 
 If you don't want your results to go to the error log, you can create your own handler via the `then` method. Currently the only custom
 handler supported is a callable method. So, say we wanted to output a message to the user of our special username and kill the script. We
@@ -64,6 +74,28 @@ $config = ['data' => [
 ?>
 ```
 
+### Using a default logger
+
+You can set it as the default logger for **all** `if` checks via the `notify` key in the `build()` configuration options:
+
+```php
+<?php
+
+// create a log channel
+$log = new Logger('name');
+$log->pushHandler(new StreamHandler('/tmp/mylog.log', Logger::WARNING));
+
+$config = [
+    'notify' => $log
+];
+\Psecio\Canary\Instance::build($config)->if('username', 'canary1234@foo.com')->execute();
+
+?>
+```
+
+> **NOTE:** If you provide a default handler via the `notify` configuration it will override all other custom notification methods.
+
+
 ### Using Monolog
 
 The `Canary` tool also allows you to use the [Monolog](https://github.com/Seldaek/monolog) logging library to define a bit more customization to the structure of the data and how it's output. Like before, we create the `Canary` instance but for the input of the `then` method we provide a `Monolog\Logger` instance:
@@ -88,21 +120,22 @@ $log->pushHandler(new StreamHandler('/tmp/mylog.log', Logger::WARNING));
 ?>
 ```
 
-Or you can set it as the default logger for **all** `if` checks via the `build()` configuration options:
+### Using Slack
+
+You can also make use of the [Maknz\Slack](https://github.com/maknz/slack) library to send messages to Slack when a canary is triggered:
 
 ```php
 <?php
-
-// create a log channel
-$log = new Logger('name');
-$log->pushHandler(new StreamHandler('/tmp/mylog.log', Logger::WARNING));
-
-$config = [
-    'notify' => $log
+$settings = [
+	'channel' => '#my-channel-name',
+	'link_names' => true
 ];
-\Psecio\Canary\Instance::build($config)->if('username', 'canary1234@foo.com')->execute();
+$slack = new Maknz\Slack\Client('https://hooks.slack.com/services/.....', $settings);
 
+\Psecio\Canary\Instance::build($config)->if('username', 'canary1234@foo.com')->then($slack);
 ?>
 ```
 
-> **NOTE:** If you provide a default handler via the `notify` configuration it will override all other custom notification methods.
+You'll need to [set up an incoming webhook](https://my.slack.com/services/new/incoming-webhook) and replace the URL value in the `Client`
+create with the custom URL you're given. The default name for the notifications is `Canary Agent` and the output includes the same JSON
+information as the other notification methods.
