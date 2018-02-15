@@ -26,7 +26,7 @@ of our current `$_POST` values, there's a match. By default (if no `then` handle
 the error like (via the `Psecio\Canary\Notify\ErrorLog` handler). The JSON encoded result looks like this:
 
 ```
-{"type":"equals","key":"username","value":"test"}
+{"type":"equals","key":"username","value":"canary1234@foo.com"}
 ```
 
 > **NOTE:** Canary automatically pulls in the `$_GET` and `$_POST` superglobal values for evaluation so you don't need to manually pass
