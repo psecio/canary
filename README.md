@@ -68,7 +68,7 @@ In this handler, when it detects that the username value matches our criteria, t
 You can also provide your own data set if you don't want to auto-load the current `$_GET` and `$_POST` values. To pass the data in you can use the
 `data` value in the configuration and passing it in:
 
-```
+```php
 <?php
 $config = ['data' => [
     'username' => 'foobar@baz.com'
