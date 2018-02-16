@@ -109,6 +109,16 @@ class Instance
     }
 
     /**
+     * Get the current set of Criteria
+     *
+     * @return \Psecio\Canary\CriteriaSet
+     */
+    public function getCriteria()
+    {
+        return $this->criteria;
+    }
+
+    /**
      * Set up a new criteria based on the input. If a CriteriaSet object is
      * provided, set the current critera value to that.
      *
