@@ -134,10 +134,21 @@ class Instance
         } elseif (count($params) == 1 && $params[0] instanceof Criteria) {
             $this->criteria->add($params[0]);
 
-        } elseif (count($params) > 1) {
-            // Add it as an "equals" criteria
-            $equals = new Equals($params[0], $params[1]);
-            $this->criteria->add($equals);
+        } elseif (count($params) >= 1) {
+            if (is_array($params[0])) {
+                $set = new CriteriaSet();
+
+                foreach ($params[0] as $index => $value) {
+                    $equals = new Equals($index, $value);
+                    $set->add($equals);
+                }
+                $this->criteria->add($set);
+            } else {
+                // Add it as a single "equals" criteria
+                $equals = new Equals($params[0], $params[1]);
+                $this->criteria->add($equals);
+            }
+
         }
 
         return $this;
@@ -194,23 +205,39 @@ class Instance
      */
     public function execute() : bool
     {
+        return $this->recurseCriteria($this->criteria);
+    }
+
+    /**
+     * Recurse the criteria and evaluate it based on the current data
+     *
+     * @param \Psecio\Canary\Criteria|\Psecio\Canary\CriteriaSec $criteria Single criteria or a set
+     * @return boolean Match/no match result
+     */
+    public function recurseCriteria($criteria) : bool
+    {
         $match = false;
         $defaultNotify = $this->getConfig('notify');
 
-        foreach ($this->criteria as $index => $criteria) {
-            if ($criteria->evaluate($this->getData()) === true) {
-                $matches[$index] = true;
+        foreach ($criteria as $index => $instance) {
+            if ($instance instanceof CriteriaSet) {
+                $match = $this->recurseCriteria($instance);
 
-                // If we've been given a default notify handler, always use that
-                $notify = ($defaultNotify !== null) ? $defaultNotify : $criteria->getNotify();
+            } else {
+                if ($instance->evaluate($this->getData()) === true) {
+                    $matches[$index] = true;
 
-                // If it's not a Notify already, resolve it
-                if (!($notify instanceof Notify)) {
-                    $notify = $this->resolveNotify($notify);
+                    // If we've been given a default notify handler, always use that
+                    $notify = ($defaultNotify !== null) ? $defaultNotify : $instance->getNotify();
+
+                    // If it's not a Notify already, resolve it
+                    if (!($notify instanceof Notify)) {
+                        $notify = $this->resolveNotify($notify);
+                    }
+
+                    $notify->execute($instance);
+                    $match = true;
                 }
-
-                $notify->execute($criteria);
-                $match = true;
             }
         }
 
