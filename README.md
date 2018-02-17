@@ -15,9 +15,19 @@ it's used. You can define this in a `Canary` expression like so:
 
 ```php
 <?php
-$_POST = ['username' => 'canary1234@foo.com'];
+$_POST = [
+    'username' => 'canary1234@foo.com',
+    'password' => 'sup3rs3cr3t'
+];
 
 \Psecio\Canary\Instance::build()->if('username', 'canary1234@foo.com')->execute();
+
+// Or you can set multiple match values to look for with an array
+$matches = [
+    'username' => 'canary1234@foo.com',
+    'password' => 'sup3rs3cr3t'
+];
+\Psecio\Canary\Instance::build()->if($matches)->execute();
 ?>
 ```
 
