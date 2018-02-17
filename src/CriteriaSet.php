@@ -51,7 +51,7 @@ class CriteriaSet implements \ArrayAccess, \Iterator, \Countable
      *
      * @param \Psecio\Canary\Criteria $criteria Criteria instance
      */
-    public function add(Criteria $criteria)
+    public function add($criteria)
     {
         $this->criteria[] = $criteria;
     }
@@ -163,6 +163,18 @@ class CriteriaSet implements \ArrayAccess, \Iterator, \Countable
     public function getMatchType()
     {
         return $this->matchType;
+    }
+
+    /**
+     * Set the same notification type on all criteria
+     *
+     * @param \Psecio\Canary\Notify $notify Notify object instance
+     */
+    public function setNotify($notify)
+    {
+        foreach ($this->criteria as $criteria) {
+            $criteria->setNotify($notify);
+        }
     }
 
 }
