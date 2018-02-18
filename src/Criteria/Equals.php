@@ -26,7 +26,12 @@ class Equals extends \Psecio\Canary\Criteria
         return ($val == $this->value);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize() : array
+    {
+        return $this->toArray();
+    }
+
+    public function toArray() : array
     {
         return [
             'type' => 'equals',
