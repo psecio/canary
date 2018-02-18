@@ -29,4 +29,6 @@ abstract class Criteria implements \JsonSerializable
     }
 
     public abstract function evaluate(Data $input);
+    public abstract function jsonSerialize() : array;
+    public abstract function toArray() : array;
 }
