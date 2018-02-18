@@ -163,6 +163,8 @@ information as the other notification methods.
 $pager = new \PagerDuty\Event();
 $pager->setServiceKey('[.... your service ID ....]');
 
-\Psecio\Canary\Instance::build($config)->if('username', 'canary1234@foo.com')->then($$pager);
+\Psecio\Canary\Instance::build($config)->if('username', 'canary1234@foo.com')->then($pager);
 ?>
 ```
+
+You can find the service ID by going to your services page (`https://[your domain].pagerduty.com/services`) and clicking on the service you want to use. The ID is under the "Integrations" tab as the "Integration Key".
