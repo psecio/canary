@@ -192,6 +192,9 @@ class Instance
         } elseif ($notify instanceof \Maknz\Slack\Client) {
             $notify = new \Psecio\Canary\Notify\Slack($notify);
 
+        } elseif ($notify instanceof \PagerDuty\Event) {
+            $notify = new \Psecio\Canary\Notify\Pagerduty($notify);
+
         } else {
             throw new \InvalidArgumentException('Invalid notification method: '.get_class($notify));
         }
