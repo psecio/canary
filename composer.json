@@ -16,7 +16,8 @@
     },
     "suggest": {
         "monolog/monolog": "Allows for the creation of Monolog-based notifiers",
-        "maknz/slack": "Allows for the creation of a Slack notifier (sends to a channel)"
+        "maknz/slack": "Allows for the creation of a Slack notifier (sends to a channel)",
+        "nmcquay/pagerduty": "Used to create PagerDuty notifications"
     },
     "autoload": {
         "psr-4": {

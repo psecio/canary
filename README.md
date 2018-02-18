@@ -52,6 +52,7 @@ Currently `Canary` supports the following notification methods:
 | Monolog   | `\Psecio\Canary\Notify\Monolog`  | `\Monolog\Logger`           |
 | Callback  | `\Psecio\Canary\Notify\Callback` | Callable function           |
 | Slack     | `\Psecio\Canary\Notify\Slack`    | `\Maknz\Slack\Client`       |
+| PagerDuty | `\Psecio\Canary\Notify\PagerDuty`| `\PagerDuty\Event`          |
 
 ### Creating a Custom Handler (Callback)
 
@@ -152,3 +153,16 @@ $slack = new Maknz\Slack\Client('https://hooks.slack.com/services/.....', $setti
 You'll need to [set up an incoming webhook](https://my.slack.com/services/new/incoming-webhook) and replace the URL value in the `Client`
 create with the custom URL you're given. The default name for the notifications is `Canary Agent` and the output includes the same JSON
 information as the other notification methods.
+
+### Using PagerDuty
+
+`Canary` also allows you to send notifications to your account on the PagerDuty service using the [nmcquay/pagerduty](https://github.com/nmcquay/pagerduty) library:
+
+```php
+<?php
+$pager = new \PagerDuty\Event();
+$pager->setServiceKey('[.... your service ID ....]');
+
+\Psecio\Canary\Instance::build($config)->if('username', 'canary1234@foo.com')->then($$pager);
+?>
+```
