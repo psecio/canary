@@ -1,6 +1,8 @@
 Canary: Input Detection and Response
 ==================
 
+[![Build Status](https://travis-ci.org/psecio/canary.svg?branch=master)](https://travis-ci.org/psecio/canary)
+
 The origin of the term "canary" (as a method of detection) was originally used by those that worked deep in mines and would take a canary
 (the bird) with them to detect gas or other reasons they needed to leave. If the bird started behaving oddly they knew something was amiss.
 This same concept is applied in the security world and is similarly called a "canary".
