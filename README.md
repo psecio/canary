@@ -44,6 +44,21 @@ the error like (via the `Psecio\Canary\Notify\ErrorLog` handler). The JSON encod
 > **NOTE:** Canary automatically pulls in the `$_GET` and `$_POST` superglobal values for evaluation so you don't need to manually pass
 then in.
 
+### Using an external data source
+
+`Canary` also allows you to use a (static) class method to provide the `if` portion of the evaluation with data. To use it, just pass in the class
+and static method name as a string:
+
+```
+<?php
+$classMethod = '\Foo\Bar::criteria';
+
+\Psecio\Canary\Instance::build()->if($classMethod)->execute();
+?>
+```
+
+The return from this method must be an array otherwise an exception will be thrown.
+
 ### Supported Notifier Methods
 
 Currently `Canary` supports the following notification methods:

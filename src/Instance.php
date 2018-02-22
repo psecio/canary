@@ -131,6 +131,22 @@ class Instance
     {
         if (count($params) == 1 && $params[0] instanceof CriteriaSet) {
             $this->criteria = $params[0];
+        } elseif (count($params) == 1 && is_string($params[0])) {
+            // Try to load it like a class
+            list($classNs, $method) = explode('::', $params[0]);
+            if (!class_exists($classNs)) {
+                throw new \InvalidArgumentException('Invalid data source: '.$classNs);
+            }
+            $result = call_user_func($classNs.'::'.$method);
+
+            if (!is_array($result)) {
+                throw new \InvalidArgumentException('Method call must return an array');
+            }
+            foreach ($result as $index => $value) {
+                $equals = new Equals($index, $value);
+                $this->criteria->add($equals);
+            }
+
         } elseif (count($params) == 1 && $params[0] instanceof Criteria) {
             $this->criteria->add($params[0]);
 
