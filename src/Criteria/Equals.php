@@ -23,6 +23,11 @@ class Equals extends \Psecio\Canary\Criteria
     public function evaluate(Data $input)
     {
         $val = $input->resolve($this->key);
+
+        if (is_array($this->value) && in_array($val, $this->value, false)) {
+            return true;
+        }
+
         return ($val == $this->value);
     }
 
