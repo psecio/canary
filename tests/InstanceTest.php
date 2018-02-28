@@ -113,6 +113,28 @@ class InstanceTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('quux', $second['value']);
     }
 
+    public function testAddMultipleKeyValueListsToCriteria()
+    {
+        $criteria = [
+            'foo' => ['bar', 'fiz', 'buz'],
+            'baz' => ['quux', 'qux']
+        ];
+        $i = Instance::build()->if($criteria);
+        $set = $i->getCriteria();
+
+        // The values are stored in a set so this set is the single value
+        $this->assertCount(1, $set);
+        $this->assertCount(2, $set[0]);
+
+        $set = $set[0];
+        // Ensure that our values are the same as what we gave
+        $first = $set[0]->toArray();
+        $this->assertEquals(['bar', 'fiz', 'buz'], $first['value']);
+
+        $second = $set[1]->toArray();
+        $this->assertEquals(['quux', 'qux'], $second['value']);
+    }
+
     public function testAddNotifyToLast()
     {
         $callback = function() { echo 'test'; };
@@ -154,5 +176,92 @@ class InstanceTest extends \PHPUnit\Framework\TestCase
 
         $i = Instance::build();
         $i->resolveNotify($notify);
+    }
+
+    /**
+     * @expectedException \UnexpectedValueException
+     * @expectedExceptionMessage Whoops!
+     */
+    public function testMatchCriteriaValue()
+    {
+        $config = [
+            'data' => [
+                'foo' => 'bar',
+            ],
+            'notify' => function () {
+                throw new \UnexpectedValueException('Whoops!');
+            },
+        ];
+
+        $criteria = [
+            'foo' => 'bar',
+            'baz' => 'quux',
+        ];
+
+        Instance::build($config)
+            ->if($criteria)
+            ->execute();
+    }
+
+    /**
+     * @expectedException \UnexpectedValueException
+     * @expectedExceptionMessage Whoops!
+     */
+    public function testMatchCriteriaList()
+    {
+        $config = [
+            'data' => [
+                'foo' => 'bar',
+            ],
+            'notify' => function () {
+                throw new \UnexpectedValueException('Whoops!');
+            },
+        ];
+
+        $criteria = [
+            'foo' => [
+                'bar',
+                'fiz',
+                'buz',
+            ],
+            'baz' => [
+                'quux',
+                'qux',
+            ],
+        ];
+
+        Instance::build($config)
+            ->if($criteria)
+            ->execute();
+    }
+
+    public function testNotMatchCriteriaList()
+    {
+        $config = [
+            'data' => [
+                'foo' => 'FizBuz',
+            ],
+            'notify' => function () {
+                throw new \UnexpectedValueException('Whoops!');
+            },
+        ];
+
+        $criteria = [
+            'foo' => [
+                'bar',
+                'fiz',
+                'buz',
+            ],
+            'baz' => [
+                'quux',
+                'qux',
+            ],
+        ];
+
+        $result = Instance::build($config)
+            ->if($criteria)
+            ->execute();
+
+        $this->assertFalse($result);
     }
 }
