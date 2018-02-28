@@ -237,6 +237,9 @@ class Instance
     {
         $match = false;
         $defaultNotify = $this->getConfig('notify');
+        if (!$defaultNotify instanceof Notify && !is_callable($defaultNotify)) {
+            $defaultNotify = null;
+        }
 
         foreach ($criteria as $index => $instance) {
             if ($instance instanceof CriteriaSet) {
