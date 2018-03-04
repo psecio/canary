@@ -6,6 +6,9 @@ use \Psecio\Canary\Criteria;
 use \Psecio\Canary\CriteriaSet;
 use \Psecio\Canary\Criteria\Equals;
 
+/**
+ * @covers \Psecio\Canary\Instance
+ */
 class InstanceTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetSetConfig()
