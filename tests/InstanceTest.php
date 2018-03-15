@@ -267,4 +267,29 @@ class InstanceTest extends \PHPUnit\Framework\TestCase
 
         $this->assertFalse($result);
     }
+
+    /**
+     * @expectedException \UnexpectedValueException
+     * @expectedExceptionMessage Whoops!
+     */
+    public function testConfigWithoutNotify()
+    {
+        $config = [
+            'data' => [
+                'foo' => 'bar',
+            ],
+        ];
+
+        $criteria = [
+            'foo' => 'bar',
+            'baz' => 'quux',
+        ];
+
+        Instance::build($config)
+            ->if($criteria)
+            ->then(function () {
+                throw new \UnexpectedValueException('Whoops!');
+            })
+            ->execute();
+    }
 }
